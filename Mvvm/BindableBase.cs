@@ -36,7 +36,7 @@ namespace Mvvm
             if (Equals(storage, value)) return false;
 
             storage = value;
-            OnPropertyChanged(propertyName);
+            RaisePropertyChanged(propertyName);
 
             return true;
         }
@@ -49,10 +49,9 @@ namespace Mvvm
         ///     value is optional and can be provided automatically when invoked from compilers
         ///     that support <see cref="CallerMemberNameAttribute" />.
         /// </param>
-        protected void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged([CallerMemberName]string propertyName = null)
         {
-            var eventHandler = PropertyChanged;
-            eventHandler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            RaisePropertyChanged(propertyName);
         }
 
         /// <summary>
@@ -63,7 +62,13 @@ namespace Mvvm
         protected void OnPropertyChanged<T>(Expression<Func<T>> propertyExpression)
         {
             var propertyName = PropertySupport.ExtractPropertyName(propertyExpression);
-            OnPropertyChanged(propertyName);
+            RaisePropertyChanged(propertyName);
+        }
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            var eventHandler = PropertyChanged;
+            eventHandler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
